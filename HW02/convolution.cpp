@@ -1,5 +1,4 @@
 #include "convolution.h"
-#include <vector>
 #include <algorithm>
 
 std::vector<std::vector<float>> convolve(const std::vector<std::vector<float>>& image, const std::vector<std::vector<float>>& mask) {
