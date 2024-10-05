@@ -37,7 +37,7 @@ void mmul3 (const double* A , const double* B, double* C, const unsigned int n) 
     }
 }
 
-void mmul4 (const std::vector<double>& A , const std::vector<double>& B, std::vector<double>& C, const unsigned int n) {
+void mmul4 (const std::vector<double>& A , const std::vector<double>& B, double* C, const unsigned int n) {
 
     for (unsigned int i = 0 ; i < n ; ++i ) {
          for (unsigned int j = 0 ; j < n ; ++j) {         

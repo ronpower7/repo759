@@ -20,12 +20,13 @@ int main(int argc, char* argv[]) {
     int n = std::atoi(argv[1]);
 
     std::vector<float> input(n);
+    std::vector<float> scannedArray(n);
 
     std::srand(static_cast<unsigned int>(std::time(0)));
     generateRandomArray(input, n);
 
     auto start = std::chrono::high_resolution_clock::now();
-    std::vector<float> scannedArray = special_scan (input, n);
+    scan (&input[0],&scannedArray[0], n);
     auto end = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<float, std::milli> duration = end - start;

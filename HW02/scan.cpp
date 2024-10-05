@@ -1,14 +1,12 @@
 #include "scan.h"
 #include <vector>
 
-std::vector<float> special_scan (std::vector<float>& input, int n) {
+void scan (const float *arr, float *output, std::size_t n) {
     
-    std::vector<float> output(n);
 
-    output[0] = input[0];
+    output[0] = arr[0];
 
-    for (int i = 1 ; i <= n ;++i) {
-        output[i] = output[i-1] + input[i];
+    for (unsigned int i = 1 ; i <= n ;++i) {
+        output[i] = output[i-1] + arr[i];
     }
-    return output;
  }   

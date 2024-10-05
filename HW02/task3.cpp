@@ -43,7 +43,7 @@ int main(int argc , char* argv[]) {
     std::cout << duration.count() << "ns  \n" << C3[n * n - 1] << "\n";
 
     start = std::chrono::high_resolution_clock::now();
-    mmul4(A_vec, B_vec, C4, n);
+    mmul4(A_vec, B_vec, &C4[0], n);
     end = std::chrono::high_resolution_clock::now();
     duration = end - start;
     std::cout << duration.count() << "ns \n" << C4[n * n - 1] << "\n";
