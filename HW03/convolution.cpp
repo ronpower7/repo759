@@ -13,10 +13,10 @@ void convolve(const float *image, float *output, std::size_t n, const float *mas
    unsigned int yj;
    float sum;
 
-  #pragma omp parallel for collapse(2) private (x,y) 
+  #pragma omp parallel for collapse(2)  
     for ( x= 0; x < n; ++x) {
         for ( y = 0; y < n; ++y) {
-             sum = 0.0f;
+            sum = 0.0f;
             for ( i = 0; i < m; ++i) {
                 for ( j = 0; j < m; ++j) {
                    xi = x + i - offset;
