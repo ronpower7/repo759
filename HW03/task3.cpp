@@ -26,6 +26,7 @@ int main(int argc, char* argv[]) {
     for(auto& val: arr) val = static_cast<int>(dist(gen));
 
   //  for (auto& val: arr) std::cout<<val<<" ";
+   // std::cout << std::endl;
     // Set the number of threads
      omp_set_num_threads(t);
 
@@ -45,7 +46,7 @@ int main(int argc, char* argv[]) {
     std::cout << arr[n - 1] << std::endl;
 
     // Print the time taken to run the msort function in milliseconds
- //   for (auto& val: arr) std::cout <<val<<" " ;
+   // for (auto& val: arr) std::cout <<val<<" " ;
     std::cout << "Time taken: " << (end_time - start_time) * 1000 << " milliseconds" << std::endl;
 
     return 0;
