@@ -2,26 +2,27 @@
 #include <cstddef>
 #include <omp.h>
 #include <vector>
+#include <iostream>
 
 
 void merge_array ( int* arr, std::size_t left , std::size_t mid , std::size_t right ) {
 
 
     std::size_t n1 = mid - left + 1 ;  
-    std::size_t n2 = right - left ; 
+    std::size_t n2 = right - mid; 
    
     std::vector<int> Larr(n1);
     std::vector<int> Rarr(n2);
-    
-  
+     
     for ( std::size_t i = 0 ; i < n1 ; ++i)  {
       
         Larr[i] = arr[left + i];
+        
     }
  
     for ( std::size_t j = 0 ; j < n2 ; ++j)  {
       
-        Rarr[j] = arr[left + j];
+        Rarr[j] = arr[mid +1 + j];
     }
 
 
@@ -55,8 +56,6 @@ void merge_array ( int* arr, std::size_t left , std::size_t mid , std::size_t ri
        ++k;
     }
 
-    Larr.clear();
-    Rarr.clear();
 
 }
 
@@ -68,9 +67,18 @@ void merge_array ( int* arr, std::size_t left , std::size_t mid , std::size_t ri
 
 void merge_sort ( int* arr, std::size_t left ,  std::size_t right , const std::size_t threshold ) {
 
-   std::size_t n = right - left + 1 ;
-   std::size_t mid = left + (right - left) / 2 ;  
-   if ( (left < right) && ((right - left + 1) >= threshold)) {
+  // std::size_t n = right - left + 1 ;
+   std::size_t mid = left + (right - left) / 2 ; 
+
+/*
+   for (int i=left; i < right +1; i++){
+      std::cout << arr[i] << ",";
+      
+   } 
+*/
+   //std::cout << "\n" << arr[left] << "," << arr[right]<< std::endl;
+   if ( left < right)  {
+     if ((right - left + 1) >= threshold) {
      
   #pragma omp task shared (arr)  
      merge_sort ( arr , left , mid ,threshold); 
@@ -80,28 +88,38 @@ void merge_sort ( int* arr, std::size_t left ,  std::size_t right , const std::s
   #pragma omp taskwait
      merge_array ( arr , left , mid ,right);
 
+
+ /*  std::cout <<  "After merge" << std::endl;
+   for (int i=left; i < right +1; i++){
+      std::cout << arr[i] << ",";
+      
+   } 
+
+   std::cout << std::endl;
+
+*/
+
    } 
    else {
 
     // normal sequential sort , bubble sort
-      for (std::size_t i = 0 ; i < n ; ++i) {
-          for (std::size_t j = 0 ; j < n ; ++j) {              
+      for (std::size_t i = left ; i < right + 1 ; ++i) {
+          for (std::size_t j = left ; j < right + 1 ; ++j) {              
               if (arr[j] > arr[j+1]) {
                 std::swap(arr[j],arr[j+1]);
               }
           }
       }
-      return ;
  
    }
 }
 
-
+}
 
 void msort(int* arr, const std::size_t n, const std::size_t threshold) {
 
 
-  merge_sort(arr,0,n-1,threshold) ;
+  merge_sort(&arr[0],0,n-1,threshold) ;
 
 
 

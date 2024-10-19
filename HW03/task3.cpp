@@ -7,11 +7,11 @@
 #include "msort.h"
 
 int main(int argc, char* argv[]) {
-    if (argc != 4) {
+ /*   if (argc != 3) {
         std::cerr << "Usage: " << argv << " <array length n> <number of threads t> <threshold ts>" << std::endl;
         return 1;
     }
-
+*/
     int n = std::atoi(argv[1]);
     int t = std::atoi(argv[2]);
     int ts = std::atoi(argv[3]);
@@ -23,12 +23,11 @@ int main(int argc, char* argv[]) {
 
     // Initialize the array with random floating-point numbers in the range [-1000, 1000]
     std::vector<int> arr(n);
-    for (int i = 0; i < n; ++i) {
-        arr[i] = static_cast<int>(dist(gen));
-    }
+    for(auto& val: arr) val = static_cast<int>(dist(gen));
 
+  //  for (auto& val: arr) std::cout<<val<<" ";
     // Set the number of threads
-    omp_set_num_threads(t);
+     omp_set_num_threads(t);
 
     // Perform parallel merge sort
     double start_time = omp_get_wtime();
@@ -40,12 +39,13 @@ int main(int argc, char* argv[]) {
         }
     }
     double end_time = omp_get_wtime();
-
+  //  std::cout << std::endl;
     // Print the first and last elements of the sorted array
     std::cout << arr[0] << std::endl;
     std::cout << arr[n - 1] << std::endl;
 
     // Print the time taken to run the msort function in milliseconds
+ //   for (auto& val: arr) std::cout <<val<<" " ;
     std::cout << "Time taken: " << (end_time - start_time) * 1000 << " milliseconds" << std::endl;
 
     return 0;
