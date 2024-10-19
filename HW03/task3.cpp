@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
     {
         #pragma omp single
         {
-            msort(arr, 0, n - 1, ts);
+            msort(&arr[0], n, ts);
         }
     }
     double end_time = omp_get_wtime();

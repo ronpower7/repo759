@@ -1,37 +1,7 @@
 
 #include <cstddef>
 #include <omp.h>
-
-
-void merge_sort ( int* arr,  std::size_t left ,  std::size_t right , cost std::size_t threshold ) {
-
-  
-   std::size_t mid = left + (right - left) / 2 ;  
-   if ( (left < right) && ((right - left + 1) >= threshold)) {
-     
-  #pragma omp task shared (arr) if (right - left >= threshold) 
-     merge_sort ( arr , left , mid ,threshold); 
-
-  #pragma omp task shared (arr) if (right - left >= threshold) 
-     merge_sort ( arr , mid+1, right ,threshold); 
-  #pragma omp taskwait
-     merge_array ( arr , left , mid ,right);
-
-   } 
-   else {
-
-    // normal sequential sort , bubble sort
-      for (std::size_t i = 0 ; i < n ; ++i) {
-          for (std::size_t j = 0 ; j < n ; ++j) {              
-              if (arr[j] > arr[j+1]) {
-                std::swap(arr[j],arr[j+1]);
-              }
-          }
-      }
-      return ;
- 
-   }
-}
+#include <vector>
 
 
 void merge_array ( int* arr, std::size_t left , std::size_t mid , std::size_t right ) {
@@ -55,9 +25,9 @@ void merge_array ( int* arr, std::size_t left , std::size_t mid , std::size_t ri
     }
 
 
-    std:size_t i = 0 ; 
-    std:size_t j = 0 ; 
-    std:size_t k = left ; 
+    std::size_t i = 0 ; 
+    std::size_t j = 0 ; 
+    std::size_t k = left ; 
  
 
     while ( i < n1 && j < n2 ) {
@@ -85,16 +55,53 @@ void merge_array ( int* arr, std::size_t left , std::size_t mid , std::size_t ri
        ++k;
     }
 
-   delete[] Larr;
-   delete[] Rarr;
+    Larr.clear();
+    Rarr.clear();
 
 }
+
+
+
+
+
+
+
+void merge_sort ( int* arr, std::size_t left ,  std::size_t right , const std::size_t threshold ) {
+
+   std::size_t n = right - left + 1 ;
+   std::size_t mid = left + (right - left) / 2 ;  
+   if ( (left < right) && ((right - left + 1) >= threshold)) {
+     
+  #pragma omp task shared (arr)  
+     merge_sort ( arr , left , mid ,threshold); 
+
+  #pragma omp task shared (arr)  
+     merge_sort ( arr , mid+1, right ,threshold); 
+  #pragma omp taskwait
+     merge_array ( arr , left , mid ,right);
+
+   } 
+   else {
+
+    // normal sequential sort , bubble sort
+      for (std::size_t i = 0 ; i < n ; ++i) {
+          for (std::size_t j = 0 ; j < n ; ++j) {              
+              if (arr[j] > arr[j+1]) {
+                std::swap(arr[j],arr[j+1]);
+              }
+          }
+      }
+      return ;
+ 
+   }
+}
+
 
 
 void msort(int* arr, const std::size_t n, const std::size_t threshold) {
 
 
-  merge_sort(arr,n,0,n-1,threshold) ;
+  merge_sort(arr,0,n-1,threshold) ;
 
 
 
