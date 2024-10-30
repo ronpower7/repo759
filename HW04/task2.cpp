@@ -26,7 +26,7 @@ void getAcc(const double pos[][3], const double mass[], double acc[][3], int N) 
     double dz = 0.0;
     double inv_r3 = 0.0;
    //  acc[N][3] = {0} ;
-    memset(acc,0,sizeof(double) * N * 3);
+   // memset(acc,0,sizeof(double) * N * 3);
 
     for (int i = 0 ; i < N ; i++) {
         for (int j = 0 ; j < N ; j++) {
@@ -177,6 +177,13 @@ int main(int argc, char *argv[]) {
            }
 
         }
+
+// initializations of acc array
+        for (int i = 0; i < N; i++) {
+            acc[i][0] = 0.0 ; 
+            acc[i][1] = 0.0 ; 
+            acc[i][2] = 0.0 ; 
+        }		
 
         // Update accelerations
         getAcc(pos, mass, acc, N);

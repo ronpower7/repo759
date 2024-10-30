@@ -27,8 +27,9 @@ void getAcc(const double pos[][3], const double mass[], double acc[][3], int N) 
     double dz = 0.0;
     double inv_r3 = 0.0;
    //  acc[N][3] = {0} ;
-    memset(acc,0,sizeof(double) * N * 3);
+//    memset(acc,0,sizeof(double) * N * 3);
 
+   #pragma omp parallel for schedule (guided) 
     for (int i = 0 ; i < N ; i++) {
         for (int j = 0 ; j < N ; j++) {
            if ( i != j) {
@@ -116,7 +117,7 @@ int main(int argc, char *argv[]) {
     double t = 0.0;
 
     // Set initial masses and random positions/velocities
-   #pragma omp parallel for schedule (guided,10) 
+   #pragma omp parallel for schedule (guided) 
     for (int i = 0; i < N; i++) {
         mass[i] = uniform_dist(generator);
 
@@ -132,7 +133,7 @@ int main(int argc, char *argv[]) {
     // Convert to Center-of-Mass frame
     double velCM[3] = {0.0, 0.0, 0.0};
     double totalMass = 0.0;
-   #pragma omp parallel for  schedule (guided,10)
+   #pragma omp parallel for  schedule (guided)
     for (int i = 0; i < N; i++) {
         velCM[0] += vel[i][0] * mass[i];
         velCM[1] += vel[i][1] * mass[i];
@@ -144,7 +145,7 @@ int main(int argc, char *argv[]) {
     velCM[1] /= totalMass;
     velCM[2] /= totalMass;
 
-   #pragma omp parallel for  schedule (guided,10)
+   #pragma omp parallel for  schedule (guided)
     for (int i = 0; i < N; i++) {
         vel[i][0] -= velCM[0];
         vel[i][1] -= velCM[1];
@@ -158,7 +159,7 @@ int main(int argc, char *argv[]) {
     int Nt = int(tEnd / dt);
 
     // Main simulation loop
-   #pragma omp parallel for  schedule (guided,10)
+   #pragma omp parallel for  schedule (guided)
     for (int step = 0; step < Nt; step++) {
         
         // TODO: (1/2) kick
@@ -187,6 +188,12 @@ int main(int argc, char *argv[]) {
            }
 
         }
+// initializations of acc array
+        for (int i = 0; i < N; i++) {
+            acc[i][0] = 0.0 ; 
+            acc[i][1] = 0.0 ; 
+            acc[i][2] = 0.0 ; 
+        }		
 
         // Update accelerations
         getAcc(pos, mass, acc, N);
