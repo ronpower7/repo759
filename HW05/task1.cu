@@ -1,4 +1,4 @@
-#include <cstudio>
+#include <cstdio>
 #include <cuda_runtime.h>
 
  
@@ -7,16 +7,16 @@ __global__ void factorialKernel() {
    int x ;
    int y = 1 ;
    
-   x = threadIDx.x + 1 ;
+   x = threadIdx.x + 1 ;
 
-   for (int i  = 1 ; i < = x ; i++) {
+   for (int i  = 1 ; i <= x ; ++i) {
      
-      y * = i ;
+      y *= i ;
 
 
    }
    
-   printf("%d!=%d",x,y);
+   printf("%d!=%d \n",x,y);
 }
 
  
