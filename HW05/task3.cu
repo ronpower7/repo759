@@ -58,8 +58,8 @@ int main ( int argc , char* argv[] ) {
    cudaMemcpy(h_b,d_b,sizeof(float) * N, cudaMemcpyDeviceToHost);
 
    std::cout << elapsedTime << "ms" << std::endl ;
-//   std::cout << h_b[0] << std::endl ;
- //  std::cout << h_b[N-1] << std::endl ;
+   std::cout << h_b[0] << std::endl ;
+   std::cout << h_b[N-1] << std::endl ;
 
 
 
