@@ -5,28 +5,26 @@
 #define BLOCK_SIZE 32
 
 __global__ void matmul_kernel(const float* A, const float* B, float* C, size_t n) {
-  
-    int row  = blockIdx.y * blockDim.y + threadIdx.y ;
-    int col  = blockIdx.x * blockDim.x + threadIdx.x ;
-
-    if (row < n && col < n) {
+ // 1D kernel configuration so deduce row and col from idx 
+    int idx  = blockIdx.x * blockDim.x + threadIdx.x ;
+    if (idx < n * n) {
+      int row = idx / n ;
+      int col = idx % n ;
       float sum = 0.0f;
       for (int k = 0 ; k < n ; ++k) {
          sum += A[(n * row) + k]  * B[(k*n) + col];
       }
-      C[(row*n) + col] = sum ;
+      C[idx] = sum ;
     }
  }
 
 
 void matmul(const float* A, const float* B, float* C, size_t n, unsigned int threads_per_block) {
-    // Calculate grid and block dimensions depending upon the threads per block , max threads per block = 1024 ,so taking BLOCK_SIZE = 32
-    unsigned int blockDimX = BLOCK_SIZE ;
-    unsigned int blockDimY = threads_per_block / BLOCK_SIZE ;
-    dim3 blockDim(blockDimX,blockDimY);
-    dim3 gridDim((n + blockDim.x - 1) / blockDim.x, (n + blockDim.y - 1) / blockDim.y);
+   // as it is 1D kernel, we need to deduce the num of blocks present 	
+    unsigned int num_elements = n * n ;
+    int num_blocks = (num_elements + threads_per_block - 1)/threads_per_block;
     // Launch the kernel
-    matmul_kernel<<<gridDim, blockDim>>>(A, B, C, n);
+    matmul_kernel<<<num_blocks, threads_per_block>>>(A, B, C, n);
 
     // Synchronize to ensure kernel completion
     cudaDeviceSynchronize();
