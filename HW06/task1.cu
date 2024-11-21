@@ -1,7 +1,6 @@
-#include <iostream>
 #include <cuda.h>
-#include <cstdlib>
-#include <ctime>
+#include <iostream>
+#include<random> 
 #include "matmul.cuh"
 
 void genMatrix(float* matrix, size_t n) {

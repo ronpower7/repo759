@@ -8,9 +8,9 @@ __global__ void matmul_kernel(const float* A, const float* B, float* C, size_t n
   
     int row  = blockIdx.y * blockDim.y + threadIdx.y ;
     int col  = blockIdx.x * blockDim.x + threadIdx.x ;
-
+   // 2D thread index, Computing C[row,col] in C[ty][tx] way as matrix is stored in row major format
+    float sum = 0.0f;
     if (row < n && col < n) {
-      float sum = 0.0f;
       for (int k = 0 ; k < n ; ++k) {
          sum += A[(n * row) + k]  * B[(k*n) + col];
       }
@@ -20,7 +20,7 @@ __global__ void matmul_kernel(const float* A, const float* B, float* C, size_t n
 
 
 void matmul(const float* A, const float* B, float* C, size_t n, unsigned int threads_per_block) {
-    // Calculate grid and block dimensions depending upon the threads per block , max threads per block = 1024 ,so taking BLOCK_SIZE = 32
+// Calculate grid and block dimensions depending upon the threads per block , max threads per block = 1024 ,so taking BLOCK_SIZE = 32
     unsigned int blockDimX = BLOCK_SIZE ;
     unsigned int blockDimY = threads_per_block / BLOCK_SIZE ;
     dim3 blockDim(blockDimX,blockDimY);
