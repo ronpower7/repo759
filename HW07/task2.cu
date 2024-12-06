@@ -1,50 +1,52 @@
 #include <iostream>
-#include <cuda_runtime.h>
-#include <cstdlib>
+#include <cuda.h>
+#include <random>
 #include "reduce.cuh"
 
-// Function to initialize an array with random values
-void initialize_array(float *array, unsigned int N) {
-    for (unsigned int i = 0; i < N; ++i) {
-        array[i] = static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f; // Random values in range [-1, 1]
+int main(int argc, char*argv[])
+{
+    cudaEvent_t start;
+    cudaEvent_t stop;
+    float ms;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    int n = std::stoi(argv[1]);
+    int threads_per_block = std::stoi(argv[2]);
+    std::random_device entropy_source;
+    std::mt19937_64 generator(entropy_source());
+    std::uniform_real_distribution <float> dist1(-1,1);
+
+    float*input = (float*)malloc(n*sizeof(float));
+    for(int i = 0; i < n; i++)
+    {
+        input[i] = dist1(generator);
     }
-}
+    float*d_input,*d_output;
+    cudaMalloc((void**)&d_input,sizeof(float) * n);
+    cudaMemcpy(d_input,input,sizeof(float)*n,cudaMemcpyHostToDevice);
 
-int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        std::cerr << "Usage: " << argv[0] << " <array length N> <threads per block>" << std::endl;
-        return 1;
-    }
+    unsigned int first_block_size = (n + threads_per_block - 1) / (threads_per_block );
+    cudaMalloc((void**)&d_output,sizeof(float)*first_block_size);
 
-    unsigned int N = std::stoi(argv[1]);
-    unsigned int threads_per_block = std::stoi(argv[2]);
+    cudaEventRecord(start);
+    reduce(&d_input,&d_output,n,threads_per_block);
+    cudaEventRecord(stop);
 
-    // Allocate host memory
-    float *h_input = new float[N];
-    initialize_array(h_input, N);
+    cudaMemcpy(input,d_input,sizeof(float),cudaMemcpyDeviceToHost);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&ms, start, stop);
 
-    // Allocate device memory
-    float *d_input, *d_output;
-    cudaMalloc(&d_input, N * sizeof(float));
-    cudaMemcpy(d_input, h_input, N * sizeof(float), cudaMemcpyHostToDevice);
+    std::cout<<"Sum: "<< input[0];
+    std::cout<<std::endl;
+    std::cout<<"Time ELapsed "<<ms;
+    std::cout<<std::endl;
+    std::cout<<std::endl;
 
-    unsigned int num_blocks = (N + threads_per_block * 2 - 1) / (threads_per_block * 2);
-    cudaMalloc(&d_output, num_blocks * sizeof(float));
-
-    // Call the reduce function
-    reduce(&d_input, &d_output, N, threads_per_block);
-
-    // Copy the result back to host
-    float result;
-    cudaMemcpy(&result, d_input, sizeof(float), cudaMemcpyDeviceToHost);
-
-    // Print the result
-    std::cout << "Sum: " << result << std::endl;
-
-    // Clean up
-    delete[] h_input;
     cudaFree(d_input);
     cudaFree(d_output);
+    free(input);
 
-    return 0;
 }
+
+

@@ -12,11 +12,13 @@ __global__ void reduce_kernel(float *g_idata, float *g_odata, unsigned int n) {
     unsigned int i = blockIdx.x * (blockDim.x * 2) + threadIdx.x;
 
     // Perform first level of reduction upon reading from global memory
-    if (i < n) {
-        sdata[tid] = g_idata[i] + (i + blockDim.x < n ? g_idata[i + blockDim.x] : 0);
-    } else {
-        sdata[tid] = 0;
-    }
+    if(i+blockDim.x < n)
+   	 sdata[tid] = g_idata[i] + g_idata[i+blockDim.x];
+    else if(i < n)
+	 sdata[tid] = g_idata[i];
+    else
+	 sdata[tid] = 0 ;
+
     __syncthreads();
 
     // Do reduction in shared memory
@@ -35,41 +37,23 @@ __global__ void reduce_kernel(float *g_idata, float *g_odata, unsigned int n) {
 
 
 
-__host__ void reduce(float **input, float **output, unsigned int N, unsigned int threads_per_block) {
-    unsigned int num_blocks = (N + threads_per_block * 2 - 1) / (threads_per_block * 2);
-    unsigned int shared_mem_size = threads_per_block * sizeof(float);
+// by using float **input, I can modify the pointer itself, allowing it to point to a new location which is needed inside the function
 
-    float *d_input = *input;
-    float *d_output = *output;
+__host__ void reduce(float **input, float **output, unsigned int N,unsigned int threads_per_block)
+{
+    while(N > 1)
+    {
+    unsigned int num_blocks = (N + threads_per_block * 2 - 1)/ (threads_per_block * 2 );
 
-    cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
-
-    cudaEventRecord(start);
-
-    while (N > 1) {
-        reduce_kernel<<<num_blocks, threads_per_block, shared_mem_size>>>(d_input, d_output, N);
-
-        N = num_blocks;
-        num_blocks = (N + threads_per_block * 2 - 1) / (threads_per_block * 2);
-
-        // Swap input and output pointers
-        float *temp = d_input;
-        d_input = d_output;
-        d_output = temp;
-    }
-
-    cudaEventRecord(stop);
-    cudaEventSynchronize(stop);
-
-    float milliseconds = 0;
-    cudaEventElapsedTime(&milliseconds, start, stop);
+    reduce_kernel<<<num_blocks,threads_per_block,threads_per_block*sizeof(float)>>>(*input,*output,N);
 
     cudaDeviceSynchronize();
-    printf("Reduction Time: %f ms\n", milliseconds);
 
-    // Copy the result back to the original input pointer
-    *input = d_input;
-    *output = d_output;
+    *input = *output;
+
+    N = num_blocks;
+	   
+    }
+
 }
+
